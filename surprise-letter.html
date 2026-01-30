@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Personal Note For You</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cerulean: #007ba7;
+            --celadon: #ace1af;
+            --sage: #b8ae9d;
+            --mist: #e6eae5;
+            --twilight: #3a4b5c;
+            --amber: #ffbf00;
+            --taupe: #483c32;
+        }
+
+        @keyframes evolveHue {
+            0% { 
+                background: linear-gradient(165deg, var(--cerulean) 0%, var(--celadon) 50%, var(--mist) 100%);
+                background-size: 400% 400%;
+            }
+            25% { 
+                background: linear-gradient(165deg, var(--celadon) 0%, var(--mist) 50%, var(--sage) 100%);
+            }
+            50% { 
+                background: linear-gradient(165deg, var(--mist) 0%, var(--sage) 50%, var(--cerulean) 100%);
+            }
+            75% { 
+                background: linear-gradient(165deg, var(--sage) 0%, var(--cerulean) 50%, var(--celadon) 100%);
+            }
+            100% { 
+                background: linear-gradient(165deg, var(--cerulean) 0%, var(--celadon) 50%, var(--mist) 100%);
+            }
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', 'Georgia', serif;
+            background: linear-gradient(165deg, var(--cerulean) 0%, var(--celadon) 50%, var(--mist) 100%);
+            background-size: 400% 400%;
+            animation: evolveHue 25s ease infinite;
+            min-height: 100vh;
+            color: var(--taupe);
+            padding: 0;
+            position: relative;
+            overflow-x: hidden;
+            letter-spacing: 0.5px;
+        }
+
+        /* Organic floating elements */
+        .drift {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.08;
+            font-size: 1.8rem;
+            z-index: 1;
+            animation: meander 18s infinite linear;
+        }
+
+        .drift:nth-child(1) { top: 12%; left: 7%; animation-delay: 0s; font-size: 1.5rem; }
+        .drift:nth-child(2) { top: 25%; right: 12%; animation-delay: 3s; font-size: 2.2rem; }
+        .drift:nth-child(3) { bottom: 28%; left: 15%; animation-delay: 6s; font-size: 1.3rem; }
+        .drift:nth-child(4) { top: 35%; right: 18%; animation-delay: 9s; font-size: 1.9rem; }
+        .drift:nth-child(5) { bottom: 32%; right: 22%; animation-delay: 12s; font-size: 1.6rem; }
+        .drift:nth-child(6) { top: 18%; left: 24%; animation-delay: 15s; font-size: 1.4rem; }
+        .drift:nth-child(7) { bottom: 18%; left: 28%; animation-delay: 1s; font-size: 2rem; }
+        .drift:nth-child(8) { top: 42%; right: 26%; animation-delay: 4s; font-size: 1.7rem; }
+
+        @keyframes meander {
+            0% {
+                transform: translate(0, 0) rotate(0deg) translateZ(0);
+            }
+            25% {
+                transform: translate(-20px, -40px) rotate(90deg) translateZ(0);
+            }
+            50% {
+                transform: translate(30px, -20px) rotate(180deg) translateZ(0);
+            }
+            75% {
+                transform: translate(-15px, 30px) rotate(270deg) translateZ(0);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg) translateZ(0);
+            }
+        }
+
+        /* Subtle particle layer */
+        .atmosphere {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .speck {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            animation: ascend 22s linear infinite;
+        }
+
+        @keyframes ascend {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0.6);
+                opacity: 0;
+            }
+            15% {
+                opacity: 0.4;
+            }
+            85% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100px) translateX(80px) scale(0.3);
+                opacity: 0;
+            }
+        }
+
+        /* Entry portal */
+        .sanctuary {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, var(--twilight) 0%, var(--cerulean) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: all 0.9s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: inset 0 0 120px rgba(0,0,0,0.2);
+        }
+
+        .sanctuary.dissolve {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(1.1);
+        }
+
+        .key-chamber {
+            background: rgba(255, 255, 255, 0.93);
+            padding: 65px 50px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 
+                0 35px 80px rgba(0,0,0,0.25),
+                0 0 0 1px rgba(255,255,255,0.4);
+            max-width: 430px;
+            width: 92%;
+            backdrop-filter: blur(12px);
+            transform: translateY(0);
+            transition: all 0.4s ease;
+        }
+
+        .key-chamber:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 45px 100px rgba(0,0,0,0.3),
+                0 0 0 1px rgba(255,255,255,0.5);
+        }
+
+        .lock-symbol {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            animation: gentleBounce 2.5s ease-in-out infinite;
+            filter: drop-shadow(0 5px 15px rgba(0,123,167,0.3));
+        }
+
+        @keyframes gentleBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .portal-title {
+            font-family: 'Playfair Display', 'Georgia', serif;
+            font-size: 2.4rem;
+            color: var(--taupe);
+            margin-bottom: 15px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .portal-subtitle {
+            color: var(--twilight);
+            margin-bottom: 35px;
+            font-style: italic;
+            opacity: 0.85;
+            font-size: 1.05rem;
+        }
+
+        .key-input {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.25rem;
+            text-align: center;
+            border: 2px solid var(--cerulean);
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-family: 'Courier New', monospace;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--taupe);
+            transition: all 0.3s ease;
+            letter-spacing: 3px;
+        }
+
+        .key-input:focus {
+            outline: none;
+            border-color: var(--amber);
+            box-shadow: 0 0 0 4px rgba(255, 191, 0, 0.2);
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .entry-button {
+            background: linear-gradient(145deg, var(--cerulean) 0%, var(--sage) 100%);
+            color: white;
+            border: none;
+            padding: 16px 35px;
+            font-size: 1.15rem;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,123,167,0.3);
+        }
+
+        .entry-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            transition: left 0.6s;
+        }
+
+        .entry-button:hover::before {
+            left: 100%;
+        }
+
+        .entry-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0,123,167,0.45);
+            background: linear-gradient(145deg, var(--sage) 0%, var(--cerulean) 100%);
+        }
+
+        .error-notice {
+            color: #d32f2f;
+            margin-top: 20px;
+            font-size: 1rem;
+            display: none;
+            animation: subtleShake 0.6s ease;
+        }
+
+        @keyframes subtleShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
+        }
+
+        /* Main content vessel */
+        .letter-vessel {
+            max-width: 850px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 28px;
+            padding: 55px;
+            box-shadow: 
+                0 25px 70px rgba(0,0,0,0.12),
+                0 0 0 1px rgba(255,255,255,0.3);
+            margin-top: 70px;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+            backdrop-filter: blur(8px);
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+
+        .letter-vessel.reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .letter-vessel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(172, 225, 175, 0.15), transparent);
+            transition: left 1.2s;
+        }
+
+        .letter-vessel:hover::before {
+            left: 100%;
+        }
+
+        .letter-header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(184, 174, 157, 0.3);
+        }
+
+        .letter-title {
+            font-family: 'Playfair Display', 'Georgia', serif;
+            font-size: 2.8rem;
+            color: var(--taupe);
+            margin-bottom: 15px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+        }
+
+        .letter-date {
+            color: var(--twilight);
+            font-style: italic;
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+
+        /* Content segments */
+        .segment {
+            margin-bottom: 45px;
+            padding: 35px;
+            background: rgba(248, 249, 247, 0.8);
+            border-radius: 20px;
+            border-left: 6px solid var(--cerulean);
+            opacity: 0;
+            transform: translateX(-40px);
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .segment::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 0;
+            background: linear-gradient(to bottom, var(--cerulean), var(--amber));
+            transition: height 0.6s ease;
+        }
+
+        .segment.show::after {
+            height: 100%;
+        }
+
+        .segment.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .segment:hover {
+            transform: translateX(-30px) scale(1.015);
+            box-shadow: 0 15px 40px rgba(0,123,167,0.15);
+        }
+
+        .segment-image {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .segment-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(172, 225, 175, 0.2) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.8s;
+        }
+
+        .segment-image:hover {
+            transform: scale(1.04) rotate(0.5deg);
+            box-shadow: 0 20px 50px rgba(172, 225, 175, 0.3);
+        }
+
+        .segment-image:hover::before {
+            transform: translateX(100%);
+        }
+
+        .segment-title {
+            font-family: 'Playfair Display', 'Georgia', serif;
+            font-size: 2rem;
+            color: var(--taupe);
+            margin-bottom: 20px;
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+        }
+
+        .segment-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--cerulean), var(--amber));
+            transition: width 0.7s ease;
+        }
+
+        .segment.show .segment-title::after {
+            width: 100%;
+        }
+
+        .segment-text {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: var(--twilight);
+            margin-bottom: 18px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .segment-text:hover {
+            color: var(--taupe);
+            transform: translateX(6px);
+        }
+
+        .segment-text::first-letter {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--amber);
+            float: left;
+            margin-right: 12px;
+            line-height: 0.8;
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Navigation controls */
+        .navigation-rail {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 40px 0;
+            padding: 0 20px;
+        }
+
+        .rail-button {
+            background: linear-gradient(145deg, var(--cerulean) 0%, var(--sage) 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 8px 20px rgba(0,123,167,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rail-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s;
+        }
+
+        .rail-button:hover::before {
+            left: 100%;
+        }
+
+        .rail-button:hover {
+            transform: translateY(-6px) scale(1.08);
+            box-shadow: 0 15px 35px rgba(0,123,167,0.45);
+        }
+
+        .rail-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 4px 12px rgba(0,123,167,0.2);
+        }
+
+        .progress-indicator {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 700;
+            color: var(--taupe);
+            box-shadow: 0 5px 18px rgba(0,0,0,0.1);
+            transition: all 0.4s ease;
+            animation: gentlePulse 4s ease-in-out infinite;
+            font-size: 1.1rem;
+        }
+
+        @keyframes gentlePulse {
+            0%, 100% { 
+                box-shadow: 0 5px 18px rgba(0,0,0,0.1);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 8px 25px rgba(0,123,167,0.25);
+                transform: scale(1.05);
+            }
+        }
+
+        /* Closing message */
+        .closing-message {
+            background: linear-gradient(145deg, var(--cerulean) 0%, var(--sage) 100%);
+            color: white;
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 40px;
+            opacity: 0;
+            transform: scale(0.85) rotateZ(-3deg);
+            transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 20px 50px rgba(0,123,167,0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .closing-message::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.9s;
+        }
+
+        .closing-message.show::before {
+            left: 100%;
+        }
+
+        .closing-message.show {
+            opacity: 1;
+            transform: scale(1) rotateZ(0deg);
+        }
+
+        .heart-symbol {
+            display: inline-block;
+            animation: heartbeat 2s infinite;
+            text-shadow: 0 0 20px rgba(255,255,255,0.6);
+            transition: all 0.4s ease;
+        }
+
+        .heart-symbol:hover {
+            animation: heartbeat 0.8s infinite, rotate360 3s linear infinite;
+            transform: scale(1.4);
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.3); }
+            50% { transform: scale(1); }
+        }
+
+        @keyframes rotate360 {
+            0% { transform: scale(1.4) rotate(0deg); }
+            100% { transform: scale(1.4) rotate(360deg); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .key-chamber {
+                padding: 45px 30px;
+                margin: 25px;
+            }
+            
+            .letter-vessel {
+                padding: 35px 25px;
+                margin-top: 35px;
+                border-radius: 20px;
+            }
+            
+            .letter-title {
+                font-size: 2.2rem;
+            }
+            
+            .segment {
+                padding: 25px;
+                border-radius: 15px;
+            }
+            
+            .segment-image {
+                height: 220px;
+            }
+            
+            .drift {
+                font-size: 1.4rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .key-chamber {
+                padding: 35px 20px;
+            }
+            
+            .portal-title {
+                font-size: 2rem;
+            }
+            
+            .letter-title {
+                font-size: 1.9rem;
+            }
+            
+            .segment {
+                padding: 20px 15px;
+                border-left-width: 4px;
+            }
+            
+            .segment-image {
+                height: 180px;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Atmospheric layer -->
+    <div class="atmosphere" id="atmosphere"></div>
+    
+    <!-- Organic floating elements -->
+    <div class="drift">⋆</div>
+    <div class="drift">❋</div>
+    <div class="drift">❀</div>
+    <div class="drift">❦</div>
+    <div class="drift">❧</div>
+    <div class="drift">✿</div>
+    <div class="drift">✾</div>
+    <div class="drift">✽</div>
+
+    <!-- Entry portal -->
+    <div class="sanctuary" id="sanctuary">
+        <div class="key-chamber">
+            <div class="lock-symbol">🗝️</div>
+            <h1 class="portal-title">A Personal Note</h1>
+            <p class="portal-subtitle">Enter the key to unlock what's inside</p>
+            <input type="password" id="keyInput" class="key-input" placeholder="Enter key">
+            <button class="entry-button" onclick="verifyKey()">ENTER</button>
+            <div class="error-notice" id="errorNotice">Incorrect key. Try again.</div>
+            <p style="margin-top: 25px; color: var(--twilight); font-size: 0.95rem; opacity: 0.7;">Think of the word that is suaitable for me</p>
+        </div>
+    </div>
+
+    <!-- Main content vessel -->
+    <div class="letter-vessel" id="letterVessel">
+        <div class="letter-header">
+            <h1 class="letter-title">For Jinanshi 😊</h1>
+            <p class="letter-date">Thoughts on Friendship</p>
+        </div>
+
+        <!-- Segment 1 -->
+        <div class="segment" id="segment1">
+            <img src="image.png" 
+                 alt="Beginning of friendship" class="segment-image">
+            <h2 class="segment-title">How It Started</h2>
+            <p class="segment-text">
+                Meko yaad hi nii aata ki kaise start hua prr har chiz ka reason nii hota hai aur iska to bilkul nii hai. Bas ek din hum mile aur phir se milte rahe. Wo pehla din hi kuch khaas tha, jaise kuch naya shuru hone wala ho.
+            </p>
+            <p class="segment-text">
+                Yaar meko to kbhi lga hi nii tha ki hum itne ache dost banenge. Tere saath baatein karna, time spend karna, sab kuch itna natural lagta hai jaise pta nhi ye bond kitna purana hai aur meko khud pe bhot proud hai ki tere jaisi dost meko mili.
+            </p>
+        </div>
+
+        <!-- Navigation rail -->
+        <div class="navigation-rail" id="navigationRail" style="display: none;">
+            <button class="rail-button" id="prevButton" onclick="previousSegment()" disabled>← Previous</button>
+            <div class="progress-indicator" id="progressIndicator">1 / 5</div>
+            <button class="rail-button" id="nextButton" onclick="nextSegment()">Next →</button>
+        </div>
+
+        <!-- Segment 2 -->
+        <div class="segment" id="segment2" style="display: none;">
+            <img src="Snapchat-722890090.jpg" 
+                 alt="Shared laughter" class="segment-image">
+            <h2 class="segment-title">Moments of Joy</h2>
+            <p class="segment-text">
+                Har ek moment acha hi hai kyuki kbhi kuch kharab hua hi nii aur ye baat bhot achi lgti hai. Tere saath hasi mazak, masti, aur wo chhoti chhoti baatein jo hum share karte hain, wo sab kuch mere liye priceless hai aur mai ye sab bhot miss krne wala hu yha se ghar janeke baad abhi holidays me January wali.
+            </p>
+            <p class="segment-text">
+                Tera meko JOKER, GAWAR, SALE ye sab kehna ye sab ek premium feel deta hai. Premium mtlb waise wala nhi waise wala premium 😂. 
+            </p>
+        </div>
+
+        <!-- Segment 3 -->
+        <div class="segment" id="segment3" style="display: none;">
+            <img src="IMG-20251214-WA0030.jpg" 
+                 alt="Supportive bond" class="segment-image">
+            <h2 class="segment-title">Always There</h2>
+            <p class="segment-text">
+                I really don't know ki mai khud itna jaldi aur itna attached kaise ho gya aur meko janna bhi nii hai ye sab kyuki har chiz ka reason nhi hota hai tune hi kha tha prr ye baat meko bhot achi lgti hai. Teko kbhi kuch share krna ho to sochta bhi nii kyuki meko pta hai ki meri sab baatein tere pass safe hai aur hmesha achi advice milegi aur na kbhi judge kiya jaega.
+            </p>
+            <p class="segment-text">
+                Meri life me itni saari problems hai prr teko share krta hu to aadhi to waise hi khatam ho jati hai aur tu sab sun leti hai bina kuch bhi kahe. Teri ye baat meko bhot comfort deti hai aur meko pta hai ki tu hmesha mere saath hai chahe kuch bhi ho jaye.
+            </p>
+        </div>
+
+        <!-- Segment 4 -->
+        <div class="segment" id="segment4" style="display: none;">
+            <img src="Snapchat-722890090.jpg" 
+                 alt="Growing together" class="segment-image">
+            <h2 class="segment-title">Growing Together</h2>
+            <p class="segment-text">
+                Meko nii pta ki sab kuch kaisa aur kya hone wala hai prr meko pta hai ki tu mere life me hmesha ek important part rahegi aur ye baat kehne se meko bilkul ajeeb ya drr nii lgta kyuki meko tere pe poora trust hai. 
+            </p>
+            <p class="segment-text">
+                Mai itna bolta hu bakwas krta hu prr hamesha tu sab sun leti hai bhale joke kitna hi lame kyu na ho 😏. Yrr Thanks ki tu meri dost bni aur bss tu khi jana mat 🥹. Ye bolne ki bilkul bhi jarurat nii thi meko pta hai prr fir khali reh jata na 😂.
+            </p>
+        </div>
+
+        <!-- Closing message -->
+        <div class="closing-message" id="closingMessage" style="display: none;">
+            <h2 style="font-family: 'Playfair Display', serif; font-size: 2.3rem; margin-bottom: 25px;">
+                Thank You For Being You <span class="heart-symbol">❦</span>
+            </h2>
+            <p style="font-size: 1.25rem; line-height: 1.9; margin-bottom: 20px;">
+                Tu bss hmesha aisi hi rehna jaisi tu hai kyuki maine to tere se hi dosti ki hai. Aur dekh mai aise hi joker wali harkate karta rahuga kyuki teko pareshan kaun karega fir ab itna to teko sehna padega.
+            </p>
+            <p style="font-size: 1.25rem; margin-top: 25px;">
+                I hope ki teko ye psnd aaye. Bss hamesha khush reh aur I promise mai teko kbhi hurt nii karuga aur na hone duga. "Acha waise pineapple khayegi! 😂" 
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const SECRET_KEY = "joker";
+        let currentSegment = 1;
+        const totalSegments = 5;
+
+        function verifyKey() {
+            const input = document.getElementById("keyInput").value.toLowerCase().trim();
+            const error = document.getElementById("errorNotice");
+
+            if (input === SECRET_KEY) {
+                document.getElementById("sanctuary").classList.add("dissolve");
+                setTimeout(() => {
+                    document.getElementById("letterVessel").classList.add("reveal");
+                    document.getElementById("navigationRail").style.display = "flex";
+                    showSegment(1);
+                }, 900);
+            } else {
+                error.style.display = "block";
+                document.getElementById("keyInput").value = "";
+                setTimeout(() => {
+                    error.style.display = "none";
+                }, 2000);
+            }
+        }
+
+        document.getElementById("keyInput").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                verifyKey();
+            }
+        });
+
+        function showSegment(segmentNum) {
+            // Hide all segments
+            for (let i = 1; i <= 4; i++) {
+                const segment = document.getElementById(`segment${i}`);
+                if (segment) {
+                    segment.style.display = "none";
+                    segment.classList.remove("show");
+                }
+            }
+            document.getElementById("closingMessage").style.display = "none";
+            document.getElementById("closingMessage").classList.remove("show");
+
+            // Show current segment
+            if (segmentNum <= 4) {
+                const segment = document.getElementById(`segment${segmentNum}`);
+                segment.style.display = "block";
+                setTimeout(() => {
+                    segment.classList.add("show");
+                }, 100);
+            } else {
+                document.getElementById("closingMessage").style.display = "block";
+                setTimeout(() => {
+                    document.getElementById("closingMessage").classList.add("show");
+                }, 100);
+            }
+
+            // Update navigation
+            document.getElementById("progressIndicator").textContent = `${segmentNum} / ${totalSegments}`;
+            document.getElementById("prevButton").disabled = (segmentNum === 1);
+            document.getElementById("nextButton").disabled = (segmentNum === totalSegments);
+        }
+
+        function nextSegment() {
+            if (currentSegment < totalSegments) {
+                currentSegment++;
+                showSegment(currentSegment);
+            }
+        }
+
+        function previousSegment() {
+            if (currentSegment > 1) {
+                currentSegment--;
+                showSegment(currentSegment);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener("keydown", function(e) {
+            if (currentSegment > 0) {
+                if (e.key === "ArrowRight" || e.key === " ") {
+                    e.preventDefault();
+                    if (currentSegment < totalSegments) nextSegment();
+                } else if (e.key === "ArrowLeft") {
+                    e.preventDefault();
+                    if (currentSegment > 1) previousSegment();
+                }
+            }
+        });
+
+        // Create atmospheric particles
+        function createAtmosphere() {
+            const container = document.getElementById('atmosphere');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('speck');
+                
+                const size = Math.random() * 5 + 1;
+                const left = Math.random() * 100;
+                const duration = Math.random() * 18 + 12;
+                const delay = Math.random() * 8;
+                
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${left}%`;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // Initialize atmosphere
+        window.addEventListener('load', createAtmosphere);
+    </script>
+</body>
+</html>
